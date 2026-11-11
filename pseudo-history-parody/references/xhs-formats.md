@@ -5,8 +5,8 @@
 ## 目录
 1. 标题公式
 2. 封面：四种纯文字卡（脚本直接出图）
-3. 梗图模板（给出版式说明，用户自己拼图或用 AI 生成）
-4. AI 插画提示词模板
+3. 梗图模板（吃瓜一侧的版式说明）
+4. AI 插画提示词（已移到 `images.md`）
 5. 正文与话题
 
 ---
@@ -60,7 +60,7 @@ python scripts/make_card.py --style list --title "天啊，顿悟红楼梦" --te
 
 ## 3. 梗图模板
 
-这些需要真实图片素材，脚本不出图。给用户写清楚：画布、元素位置、每块文字。
+能跑脚本时，对比、红圈、聊天截图、表情包这几种用 `scripts/make_meme.py` 直接出（见 `images.md`）；wojak、多格拼贴这类复杂版式脚本不出，给用户写清楚：画布、元素位置、每块文字。
 
 ### A. 信徒非蠢即坏（wojak 对比）
 - 横版 16:9。顶部红色横幅白字：「"西方伪物"信徒非蠢即坏！！」
@@ -92,36 +92,14 @@ python scripts/make_card.py --style list --title "天啊，顿悟红楼梦" --te
 ### G. 地月葫芦 / 神族证据图
 - 地球与月球连成一个葫芦形，配字「地月本为一体🌍🌕，现在…」，再配一个夸张的 "COOL" 贴纸
 
-## 4. AI 插画提示词模板
+## 4. AI 插画提示词
 
-给 Midjourney / 即梦 / 豆包等用。中文字在 AI 图里容易错，标题和题跋建议出图后用美图秀秀或 PS 自己加。
-
-**伪古籍告示（"……之图"）**
-```
-Antique Chinese scroll illustration, aged parchment, ornate dragon border, comic-panel layout:
-large central scene of [beetle-headed armored soldiers with ray guns attacking a herd of woolly mammoths
-in front of a Qing dynasty city gate], four small panels below, vertical calligraphy columns on both sides,
-red seal stamps, sepia ink and muted color, highly detailed, satirical, --ar 5:4
-```
-后期加字：标题「[甲]因[乙]不信伪史论而将其灭绝之图」、副标题「大清乾隆年间真实事件」、四格小标题（高科技武器展示 / 惨遭灭绝 / 灭绝后篡改历史 / 新编史书发布）、底部「历史由胜利者书写，真理由信仰者定义！」。
-
-**南极冰墙外地图**
-```
-Fantasy world map, top-down, a circular ice wall ring in the center enclosing the real continents,
-outside the ring: lush unknown continents, waterfalls, ancient ruins, oceans, mountain rings,
-painterly, vivid, high detail, map labels area left blank --ar 3:4
-```
-
-**西方伪物证据照**
-```
-Fake museum exhibit photo of a [elephant / kangaroo] labeled as a forgery, gallery lighting,
-small placard, deadpan documentary style --ar 3:4
-```
+提示词模板、生图接口配置、哪些图不能让 AI 画，都在 `images.md` 第 3 节。吃瓜一侧多一个模板：
 
 **伪史论学校 belike**
 ```
 Anime style, two scared girls with animal ears (sheep and cat) crouching behind an iron fence holding a tablet,
-behind the fence an endless crowd of identical white-haired red-eyed maids staring, European campus, sunny --ar 3:4
+behind the fence an endless crowd of identical white-haired red-eyed maids staring, European campus, sunny, no text --ar 3:4
 ```
 
 ## 5. 吃瓜帖的正文与话题

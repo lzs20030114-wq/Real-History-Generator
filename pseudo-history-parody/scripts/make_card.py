@@ -59,12 +59,15 @@ def parse(text):
 
 # 不能出现在行首的标点（中文排版"避头"规则）
 NO_LINE_START = set("，。！？、；：,.!?;:）)】』」》〉”’…—%")
+# 不能留在行尾的标点：开引号、开括号，跟下一个字粘在一起
+NO_LINE_END = set("“‘（(【『「《〈")
 WORD_CHAR = re.compile(r"[A-Za-z0-9.%·+\-]")
 
 
 def tokens(para):
     """把一段拆成排版单位：连续的英文/数字算一个单位，其他一个字一个单位。"""
     out = []
+    pending = []  # 开引号、开括号先攒着，粘到下一个单位前面
     for seg, hl in parse(para):
         buf = ""
         for ch in seg:
@@ -72,11 +75,18 @@ def tokens(para):
                 buf += ch
                 continue
             if buf:
-                out.append([(c, hl) for c in buf])
-                buf = ""
-            out.append([(ch, hl)])
+                out.append(pending + [(c, hl) for c in buf])
+                buf, pending = "", []
+            if ch in NO_LINE_END:
+                pending.append((ch, hl))
+                continue
+            out.append(pending + [(ch, hl)])
+            pending = []
         if buf:
-            out.append([(c, hl) for c in buf])
+            out.append(pending + [(c, hl) for c in buf])
+            pending = []
+    if pending:
+        out.append(pending)
     return out
 
 
@@ -315,10 +325,11 @@ STYLES = {"notes": notes, "quote": quote, "brush": brush, "list": list_card, "es
 
 
 def main():
-    try:  # Windows 控制台默认 GBK，中文文件名会打印成乱码
-        sys.stdout.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
+    for stream in (sys.stdout, sys.stderr):  # Windows 控制台默认 GBK，报错信息会乱码
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
     ap = argparse.ArgumentParser()
     ap.add_argument("--style", choices=STYLES, default="notes")
     ap.add_argument("--text", default="")

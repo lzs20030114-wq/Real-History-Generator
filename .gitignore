@@ -7,3 +7,4 @@ Thumbs.db
 *.zip
 *.png
 !docs/*.png
+image_config.json

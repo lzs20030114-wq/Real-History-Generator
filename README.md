@@ -11,7 +11,7 @@
 | 形态 | 说明 |
 |---|---|
 | 信徒帖（默认） | 一篇信徒口吻的正文 + 帖外拆穿表 + 伪史含量评分 |
-| 小红书帖 | 一图一句（照片上压一行字）、截图堆、长文帖。在 Claude Code 里直接生成图片；在 claude.ai 网页端给出用醒图、美图秀秀手动做图的步骤 |
+| 小红书帖 | 一图一句、截图堆、长文帖。能跑命令时自动找真实照片，做 P 图、对比图、红圈标注、群聊截图、表情包，接了生图接口还能出 AI 插画；在 claude.ai 网页端给出手动做图的步骤 |
 | 评论区 | 4～8 条信徒评论，夹一两条路人质疑 |
 | 短视频脚本 | 分镜表 |
 | 吃瓜一侧 | 站在嘲笑伪史论的路人立场写征集帖、段子 |
@@ -55,21 +55,38 @@ cp -r Real-History-Generator/pseudo-history-parody ~/.claude/skills/
 - 给这个帖子写几条评论：《他们连层数都数不清》
 - 用营销号体，证明长城是喵星人的猫爬架（反向模式）
 
-## 出图脚本
+## 出图
 
-`pseudo-history-parody/scripts/make_card.py` 生成小红书 3:4 卡片，需要 Python 3 和 Pillow（`pip install pillow`），字体用系统自带的中文字体（Windows 开箱即用，macOS/Linux 需要装思源黑体或类似字体）。
+能跑命令的环境（Claude Code 或其他能执行命令的 agent）里，skill 会自己跑脚本出图。需要 Python 3、`pip install pillow requests`，字体用系统自带的中文字体（Windows 开箱即用，macOS/Linux 需要装思源黑体或类似字体）。
 
-| 样式 | 用途 |
+| 脚本 | 做什么 |
 |---|---|
-| `photo` | 在照片上压一行字（一图一句） |
-| `essay` | 信徒长文帖封面 |
-| `quote` / `brush` / `notes` / `list` | 引号卡、毛笔字、备忘录、长截图 |
+| `find_photo.py` | 从维基共享资源、Openverse 搜真实照片（开放授权，不用 key），下载候选图、出带编号的缩略图总览、记下作者和授权 |
+| `make_meme.py` | 照片类出图：小红书 P 图（大字＋高亮）、对比图、红圈标注、群聊截图、表情包、上下压字梗图 |
+| `make_card.py` | 文字卡：一图一句、长文封面、引号卡、毛笔字、备忘录、长截图 |
+| `gen_image.py` | 调文生图接口出 AI 插画（上古设定、冰墙地图、古画风），没配置时自动跳过 |
 
 ```bash
-python make_card.py --style photo --image 照片.jpg --text "他们连层数都数不清" -o post.png
+python find_photo.py "Borgund stave church" -o photos
+python make_meme.py --style compare --image a.jpg --image2 b.jpg --label "挪威" --label2 "山西" --title "同一个师傅" -o p1.png
+python make_meme.py --style annotate --image a.jpg --marks '[{"type":"circle","box":[0.35,0.12,0.62,0.3],"label":"这不就是飞檐"}]' -o p2.png
 ```
 
-每张图左下角都会带「伪史论模仿秀·纯属虚构」小字。
+### 接入生图接口（可选）
+
+`gen_image.py` 走 OpenAI 兼容的 `/images/generations` 接口，设好环境变量就行：
+
+```bash
+export PHP_IMAGE_PROVIDER=siliconflow   # 预设：openai / siliconflow / ark / zhipu / local
+export PHP_IMAGE_API_KEY=sk-xxxx
+export PHP_IMAGE_MODEL=...              # 可选，覆盖预设的默认模型
+```
+
+或者在 skill 文件夹放一个 `image_config.json`（已在 .gitignore 里）：`{"provider": "ark", "api_key": "...", "model": "..."}`。不在预设里的服务直接设 `PHP_IMAGE_BASE_URL`。
+
+DeepSeek 官方 API 目前只有文本模型，没有生图接口。用 DeepSeek 当主模型跑这个 skill 没问题，生图另配一家；想用 DeepSeek 的开源生图模型 Janus-Pro，自己部署后套 OpenAI 兼容接口，用 `local` 预设。
+
+AI 只用来画一眼能看出是创作的插画；建筑、文物用真实照片。每张图都带「纯属虚构」小字，AI 图另带「AI生成」。
 
 ## 红线
 
@@ -92,10 +109,11 @@ pseudo-history-parody/
 │   ├── style.md             # 营销号体腔调
 │   ├── frames.md            # 吃瓜一侧的十种笑点
 │   ├── memes.md             # 吃瓜一侧的梗库
-│   ├── xhs-formats.md       # 小红书版式、AI 插画提示词
+│   ├── xhs-formats.md       # 小红书版式、标题、文字卡
+│   ├── images.md            # 出图：找照片、P 图、对比、红圈、AI 生图
 │   └── video.md             # 视频脚本模板
 ├── examples/                # 各形态的完整示例
-└── scripts/make_card.py     # 出图脚本
+└── scripts/                 # find_photo / make_meme / make_card / gen_image
 ```
 
 ## 说明
